@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Certification Tracker — Sign Up / Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --primary:#1e88e5; --primary-dark:#1565c0; --danger:#d32f2f; --bg:#f1f6fb;
+    --card:#ffffff;
+  }
+  *{box-sizing:border-box}
+  body{font-family:'Poppins',sans-serif;background:var(--bg);margin:0;padding:24px}
+  .wrap{max-width:1000px;margin:0 auto}
+  .card{background:var(--card);border-radius:12px;padding:22px;box-shadow:0 8px 30px rgba(13,71,161,0.06);margin-bottom:20px}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:12px}
+  h1{color:var(--primary);margin:0 0 6px 0}
+  p.lead{margin:0;color:#556f85}
+  .tabs{display:flex;gap:10px;margin-top:16px}
+  .tab{padding:10px 14px;border-radius:8px;cursor:pointer;border:1px solid transparent}
+  .tab.active{background:linear-gradient(90deg,var(--primary),var(--primary-dark));color:#fff}
+  .col{display:grid;grid-template-columns:1fr 420px;gap:18px;margin-top:18px}
+  @media(max-width:900px){.col{grid-template-columns:1fr}}
+  label{display:block;font-weight:500;margin-top:12px}
+  input[type="text"],input[type="password"],input[type="date"],select,input[type="file"],textarea{
+    width:100%;padding:10px;border-radius:8px;border:1px solid #d7e6f7;background:#fbfeff;margin-top:6px;font-size:15px
+  }
+  .btn{display:inline-block;padding:10px 14px;border-radius:8px;border:0;background:var(--primary);color:#fff;font-weight:600;cursor:pointer}
+  .btn.ghost{background:transparent;border:1px solid #cfe3fb;color:#1565c0}
+  .btn.warn{background:var(--danger)}
+  .row{display:flex;gap:10px;margin-top:12px}
+  .muted{color:#627d8a;font-size:14px}
+  table{width:100%;border-collapse:collapse;margin-top:12px}
+  th,td{padding:10px;border:1px solid #e7f0fb;text-align:left}
+  th{background:var(--primary);color:#fff}
+  .actions button{margin-right:8px;padding:8px 10px;border-radius:6px;border:0;cursor:pointer}
+  .actions .view{background:#1976d2;color:#fff}
+  .actions .download{background:#0d47a1;color:#fff}
+  .hidden{display:none}
+  .viewer{margin-top:18px;padding:14px;background:#fff;border-radius:10px;box-shadow:0 3px 12px rgba(0,0,0,0.06);display:none}
+  iframe{width:100%;height:520px;border:0}
+  .notice{padding:10px;background:#f1f8ff;border-left:4px solid var(--primary);border-radius:6px;margin-bottom:12px;color:#0d47a1}
+  .small{font-size:13px;color:#556f85}
+  .center{text-align:center}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- Header Card: Sign Up / Login tabs -->
+  <div class="card" id="authCard">
+    <div class="top">
+      <div>
+        <h1>Certification Tracking System</h1>
+        <p class="lead">Create an account and sign in to add and manage your certifications. Admin is fixed.</p>
+      </div>
+      <div class="small">
+        Admin (fixed): <strong>admin</strong> / <strong>admin123</strong>
+      </div>
+    </div>
+
+    <div class="tabs" style="margin-top:18px">
+      <div id="tabLogin" class="tab active" onclick="showTab('login')">Login</div>
+      <div id="tabSignup" class="tab" onclick="showTab('signup')">Sign Up</div>
+    </div>
+
+    <div style="margin-top:18px" id="loginPane">
+      <div class="notice">If you don't have an account, click <span style="text-decoration:underline;cursor:pointer" onclick="showTab('signup')">Sign Up</span>.</div>
+
+      <label>Role</label>
+      <select id="loginRole"><option>User</option><option>Admin</option></select>
+
+      <label>Username</label>
+      <input id="loginUser" type="text" placeholder="username">
+
+      <label>Password</label>
+      <input id="loginPass" type="password" placeholder="password">
+
+      <div class="row" style="margin-top:14px">
+        <button class="btn" onclick="login()">Sign In</button>
+        <button class="btn ghost" onclick="clearLogin()">Clear</button>
+      </div>
+    </div>
+
+    <div style="display:none;margin-top:12px" id="signupPane">
+      <div class="notice">Create a new user account. After success you'll be sent to the Login tab with the username pre-filled.</div>
+
+      <label>Choose Username</label>
+      <input id="signUser" type="text" placeholder="choose username">
+
+      <label>Create Password</label>
+      <input id="signPass" type="password" placeholder="password">
+
+      <label>Confirm Password</label>
+      <input id="signPass2" type="password" placeholder="confirm password">
+
+      <div class="row">
+        <button class="btn" onclick="signup()">Create Account</button>
+        <button class="btn ghost" onclick="showTab('login')">Back to Login</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main area: left = dashboards/forms, right = info/help -->
+  <div class="col">
+
+    <!-- Left column contains dynamic content (dashboards) -->
+    <div>
+
+      <!-- USER DASHBOARD -->
+      <div id="userDash" class="card hidden">
+        <div class="top">
+          <div>
+            <h2>User Dashboard</h2>
+            <div class="small">Signed in as: <strong id="labelUser"></strong></div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center">
+            <button class="btn" onclick="scrollToAdd()">Add Certification</button>
+            <button class="btn warn" onclick="logout()">Logout</button>
+          </div>
+        </div>
+
+        <div style="margin-top:10px">
+          <div class="notice">Upload certificate files (PDF or Images). They are stored locally in your browser (Base64).</div>
+
+          <label>Certification Title</label>
+          <input id="certTitle" type="text" placeholder="e.g., AWS Cloud Practitioner">
+
+          <label>Issuer Organization</label>
+          <input id="certIssuer" type="text" placeholder="e.g., Amazon Web Services">
+
+          <div style="display:flex;gap:10px;margin-top:6px">
+            <div style="flex:1">
+              <label>Issue Date</label>
+              <input id="certIssue" type="date">
+            </div>
+            <div style="flex:1">
+              <label>Expiry Date</label>
+              <input id="certExpiry" type="date">
+            </div>
+          </div>
+
+          <label>Upload Certificate (PDF / PNG / JPG)</label>
+          <input id="certFile" type="file" accept=".pdf,image/*">
+
+          <div class="row">
+            <button class="btn" onclick="saveCert()">Save Certification</button>
+            <button class="btn ghost" onclick="clearCertForm()">Clear</button>
+          </div>
+        </div>
+
+        <div style="margin-top:18px">
+          <h3>Your Certifications</h3>
+          <table id="userTable"></table>
+        </div>
+
+        <div id="viewerBox" class="viewer" style="display:none">
+          <h3>Certificate Preview</h3>
+          <iframe id="viewerFrame"></iframe>
+        </div>
+      </div>
+
+      <!-- ADMIN DASHBOARD -->
+      <div id="adminDash" class="card hidden">
+        <div class="top">
+          <div>
+            <h2>Admin Dashboard</h2>
+            <div class="small">Administrator</div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center">
+            <button class="btn" onclick="refreshAll()">Refresh</button>
+            <button class="btn warn" onclick="logout()">Logout</button>
+          </div>
+        </div>
+
+        <div style="margin-top:12px">
+          <h3>All Certifications</h3>
+          <table id="adminTable"></table>
+        </div>
+
+        <div id="viewerBoxAdmin" class="viewer hidden">
+          <h3>Certificate Preview</h3>
+          <iframe id="viewerFrameAdmin"></iframe>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Right column: help / tips -->
+    <div>
+      <div class="card">
+        <h3>Quick Tips</h3>
+        <p class="muted">• Sign up to create your username & password, then use Login tab.<br>
+        • Admin account is fixed for management.<br>
+        • Files are stored in your browser localStorage; exporting or migrating would require additional code.<br>
+        • For production use, move auth & file storage to a secure backend and hash passwords.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ======= Keys ======= */
+const USERS_KEY = "cert_users_v2";
+const CERTS_KEY = "cert_certs_v2";
+
+/* ======= Utilities ======= */
+function loadUsers(){ return JSON.parse(localStorage.getItem(USERS_KEY) || "[]"); }
+function saveUsers(u){ localStorage.setItem(USERS_KEY, JSON.stringify(u)); }
+function loadCerts(){ return JSON.parse(localStorage.getItem(CERTS_KEY) || "[]"); }
+function saveCerts(c){ localStorage.setItem(CERTS_KEY, JSON.stringify(c)); }
+
+/* ======= Tab handling ======= */
+function showTab(tab){
+  document.getElementById("tabLogin").classList.remove("active");
+  document.getElementById("tabSignup").classList.remove("active");
+  document.getElementById("loginPane").style.display = "none";
+  document.getElementById("signupPane").style.display = "none";
+
+  if(tab === 'login'){
+    document.getElementById("tabLogin").classList.add("active");
+    document.getElementById("loginPane").style.display = "block";
+  } else {
+    document.getElementById("tabSignup").classList.add("active");
+    document.getElementById("signupPane").style.display = "block";
+  }
+}
+
+/* ======= Signup ======= */
+function signup(){
+  const username = document.getElementById("signUser").value.trim();
+  const pass = document.getElementById("signPass").value;
+  const pass2 = document.getElementById("signPass2").value;
+
+  if(!username || !pass || !pass2){ alert("Fill all fields."); return; }
+  if(pass !== pass2){ alert("Passwords do not match."); return; }
+  if(username.toLowerCase() === "admin"){ alert("Username 'admin' is reserved."); return; }
+
+  const users = loadUsers();
+  if(users.some(u => u.username.toLowerCase() === username.toLowerCase())){ alert("Username taken."); return; }
+
+  // Save user (note: demo stores plain text in localStorage; for production use server & hashed passwords)
+  users.push({ username: username, password: pass });
+  saveUsers(users);
+
+  // Pre-fill login username and switch to login tab
+  document.getElementById("loginUser").value = username;
+  document.getElementById("loginPass").value = "";
+  document.getElementById("signUser").value = "";
+  document.getElementById("signPass").value = "";
+  document.getElementById("signPass2").value = "";
+
+  alert("Account created. Please log in with your new credentials.");
+  showTab('login');
+}
+
+/* ======= Login ======= */
+let currentUser = null; // string: username or 'admin'
+function login(){
+  const role = document.getElementById("loginRole").value;
+  const username = document.getElementById("loginUser").value.trim();
+  const password = document.getElementById("loginPass").value;
+
+  if(!username || !password){ alert("Enter username & password."); return; }
+
+  if(role === "Admin"){
+    if(username === "admin" && password === "admin123"){
+      currentUser = "admin";
+      openAdmin();
+    } else {
+      alert("Invalid admin credentials.");
+    }
+    return;
+  }
+
+  const users = loadUsers();
+  const u = users.find(x => x.username.toLowerCase() === username.toLowerCase());
+  if(!u || u.password !== password){ alert("Invalid user credentials."); return; }
+
+  currentUser = u.username;
+  openUser();
+}
+
+/* ======= Logout ======= */
+function logout(){
+  currentUser = null;
+  // return to auth card with login tab
+  document.getElementById("userDash").classList.add("hidden");
+  document.getElementById("adminDash").classList.add("hidden");
+  document.getElementById("authCard").classList.remove("hidden");
+  showTab('login');
+  // clear sensitive fields
+  document.getElementById("loginPass").value = "";
+}
+
+/* ======= Open dashboards ======= */
+function openUser(){
+  document.getElementById("authCard").classList.add("hidden");
+  document.getElementById("adminDash").classList.add("hidden");
+  document.getElementById("userDash").classList.remove("hidden");
+  document.getElementById("labelUser").innerText = currentUser;
+  updateUserTable();
+}
+
+function openAdmin(){
+  document.getElementById("authCard").classList.add("hidden");
+  document.getElementById("userDash").classList.add("hidden");
+  document.getElementById("adminDash").classList.remove("hidden");
+  updateAdminTable();
+}
+
+/* ======= File to Base64 ======= */
+function fileToBase64(file){
+  return new Promise((resolve,reject)=>{
+    const reader = new FileReader();
+    reader.onload = ()=> resolve(reader.result);
+    reader.onerror = ()=> reject("File read error");
+    reader.readAsDataURL(file);
+  });
+}
+
+/* ======= Save certificate (user) ======= */
+async function saveCert(){
+  const title = document.getElementById("certTitle").value.trim();
+  const issuer = document.getElementById("certIssuer").value.trim();
+  const issue = document.getElementById("certIssue").value;
+  const expiry = document.getElementById("certExpiry").value;
+  const fileEl = document.getElementById("certFile");
+  const file = fileEl.files[0];
+
+  if(!title || !issuer || !issue || !expiry || !file){ alert("Complete all fields & choose file."); return; }
+
+  try{
+    const b64 = await fileToBase64(file);
+    const certs = loadCerts();
+    certs.push({
+      id: Date.now().toString(36),
+      user: currentUser,
+      title, issuer, issue, expiry,
+      file: b64, fileName: file.name,
+      createdAt: new Date().toISOString()
+    });
+    saveCerts(certs);
+    alert("Certificate saved.");
+    clearCertForm();
+    updateUserTable();
+  } catch(e){
+    alert("Failed to read file.");
+  }
+}
+
+/* ======= UI: clear cert form ======= */
+function clearCertForm(){
+  document.getElementById("certTitle").value = "";
+  document.getElementById("certIssuer").value = "";
+  document.getElementById("certIssue").value = "";
+  document.getElementById("certExpiry").value = "";
+  document.getElementById("certFile").value = "";
+}
+
+/* ======= Update tables ======= */
+function updateUserTable(){
+  const table = document.getElementById("userTable");
+  const certs = loadCerts().filter(c => c.user === currentUser);
+
+  table.innerHTML = `<tr><th>Title</th><th>Issuer</th><th>Issued</th><th>Expires</th><th>Actions</th></tr>`;
+  if(certs.length === 0){ table.innerHTML += `<tr><td colspan="5" class="muted">No certifications yet.</td></tr>`; hideViewer(); return; }
+
+  certs.forEach(c=>{
+    const actions = `<div class="actions">
+      <button class="view" onclick="viewInline('${c.id}')">View</button>
+      <a href="${c.file}" download="${sanitize(c.fileName)}"><button class="download">Download</button></a>
+    </div>`;
+    table.innerHTML += `<tr>
+      <td>${esc(c.title)}</td><td>${esc(c.issuer)}</td><td>${esc(c.issue)}</td><td>${esc(c.expiry)}</td><td>${actions}</td>
+    </tr>`;
+  });
+}
+
+/* ======= Admin table ======= */
+function updateAdminTable(){
+  const table = document.getElementById("adminTable");
+  const certs = loadCerts();
+
+  table.innerHTML = `<tr><th>User</th><th>Title</th><th>Issuer</th><th>Issued</th><th>Expires</th><th>Actions</th></tr>`;
+  if(certs.length === 0){ table.innerHTML += `<tr><td colspan="6" class="muted">No certifications yet.</td></tr>`; hideViewerAdmin(); return; }
+
+  certs.forEach(c=>{
+    const actions = `<div class="actions">
+      <button class="view" onclick="viewInlineAdmin('${c.id}')">View</button>
+      <a href="${c.file}" download="${sanitize(c.fileName)}"><button class="download">Download</button></a>
+    </div>`;
+    table.innerHTML += `<tr>
+      <td>${esc(c.user)}</td>
+      <td>${esc(c.title)}</td>
+      <td>${esc(c.issuer)}</td>
+      <td>${esc(c.issue)}</td>
+      <td>${esc(c.expiry)}</td>
+      <td>${actions}</td>
+    </tr>`;
+  });
+}
+
+/* ======= Inline viewers ======= */
+function viewInline(id){
+  const cert = loadCerts().find(c => c.id === id && c.user === currentUser);
+  if(!cert){ alert("Not found or permission denied."); return; }
+  document.getElementById("viewerFrame").src = cert.file;
+  document.getElementById("viewerBox").style.display = "block";
+  document.getElementById("viewerBoxAdmin").classList.add("hidden");
+  window.scrollTo({ top: document.getElementById("viewerBox").offsetTop-10, behavior: 'smooth' });
+}
+function viewInlineAdmin(id){
+  const cert = loadCerts().find(c => c.id === id);
+  if(!cert){ alert("Not found."); return; }
+  document.getElementById("viewerFrameAdmin").src = cert.file;
+  document.getElementById("viewerBoxAdmin").classList.remove("hidden");
+  document.getElementById("viewerBox").style.display = "none";
+  window.scrollTo({ top: document.getElementById("viewerBoxAdmin").offsetTop-10, behavior: 'smooth' });
+}
+function hideViewer(){ document.getElementById("viewerBox").style.display = "none"; }
+function hideViewerAdmin(){ document.getElementById("viewerBoxAdmin").classList.add("hidden"); }
+
+/* ======= Misc helpers ======= */
+function esc(s){ return (s||"").toString().replace(/[&<>"'`]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;',"`":'&#96;'})[ch]); }
+function sanitize(fn){ return (fn||'certificate').replace(/[^a-z0-9\.\-_]/ig,'_'); }
+
+/* ======= small helpers ======= */
+function clearLogin(){ document.getElementById("loginUser").value=''; document.getElementById("loginPass").value=''; }
+function scrollToAdd(){ window.scrollTo({ top: 0, behavior:'smooth' }); }
+function refreshAll(){ updateAdminTable(); updateUserTable(); }
+
+/* ======= Sample init (ensure arrays exist) ======= */
+(function init(){
+  if(!localStorage.getItem(USERS_KEY)) saveUsers([]);
+  if(!localStorage.getItem(CERTS_KEY)) saveCerts([]);
+  showTab('login');
+})();
+</script>
+
+</body>
+</html>
