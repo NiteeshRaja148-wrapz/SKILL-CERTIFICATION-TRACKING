@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Certification Tracking System</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f5f5f5;
+        margin: 0;
+        padding: 0;
+    }
+    header {
+        background: #1e88e5;
+        color: white;
+        padding: 15px;
+        text-align: center;
+        font-size: 22px;
+    }
+    .container {
+        max-width: 900px;
+        margin: auto;
+        background: white;
+        padding: 20px;
+        margin-top: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px #ccc;
+    }
+    .section-title {
+        font-size: 20px;
+        margin-bottom: 10px;
+        border-left: 5px solid #1e88e5;
+        padding-left: 10px;
+    }
+    input, select {
+        padding: 10px;
+        margin: 8px 0;
+        width: 100%;
+        border-radius: 5px;
+        border: 1px solid #aaa;
+    }
+    button {
+        padding: 10px 15px;
+        background: #1e88e5;
+        color: white;
+        border: none;
+        cursor: pointer;
+        border-radius: 5px;
+        font-size: 16px;
+    }
+    button:hover {
+        background: #0f67b3;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+    }
+    table, th, td {
+        border: 1px solid #ddd;
+    }
+    th, td {
+        padding: 10px;
+        text-align: left;
+    }
+    th {
+        background: #1e88e5;
+        color: white;
+    }
+</style>
+</head>
+<body>
+
+<header>Professional Skill Certification Tracking System</header>
+
+<div class="container">
+
+    <!-- Role Selection -->
+    <div>
+        <label><b>Select Role:</b></label>
+        <select id="role" onchange="toggleTables()">
+            <option value="user">User</option>
+            <option value="admin">Admin</option>
+        </select>
+    </div>
+
+    <!-- Add Certification -->
+    <h3 class="section-title">Add Certification</h3>
+
+    <div>
+        <input type="text" id="title" placeholder="Certification Title">
+        <input type="text" id="issuer" placeholder="Issuer Organization">
+        <label>Issue Date</label>
+        <input type="date" id="issue">
+        <label>Expiry Date</label>
+        <input type="date" id="expiry">
+        <label>Upload Certificate</label>
+        <input type="file" id="file">
+        <button onclick="addCert()">Add Certification</button>
+    </div>
+
+    <!-- User Table -->
+    <h3 class="section-title">Your Certifications</h3>
+    <table id="userTable">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Issuer</th>
+                <th>Issued</th>
+                <th>Expires</th>
+            </tr>
+        </thead>
+        <tbody id="userBody"></tbody>
+    </table>
+
+    <!-- Admin Table -->
+    <h3 class="section-title" id="adminLabel" style="display:none;">Admin: All User Certifications</h3>
+    <table id="adminTable" style="display:none;">
+        <thead>
+            <tr>
+                <th>User</th>
+                <th>Title</th>
+                <th>Issuer</th>
+                <th>Expires</th>
+                <th>Renewal</th>
+            </tr>
+        </thead>
+        <tbody id="adminBody"></tbody>
+    </table>
+</div>
+
+<script>
+let certifications = []; // simple local storage
+
+function addCert() {
+    const cert = {
+        title: document.getElementById("title").value,
+        issuer: document.getElementById("issuer").value,
+        issue: document.getElementById("issue").value,
+        expiry: document.getElementById("expiry").value,
+        file: document.getElementById("file").value,
+        user: "John Doe" // static: replace with login system later
+    };
+
+    certifications.push(cert);
+    displayTables();
+}
+
+function displayTables() {
+    let userHTML = "";
+    let adminHTML = "";
+
+    certifications.forEach(c => {
+        userHTML += `
+            <tr>
+                <td>${c.title}</td>
+                <td>${c.issuer}</td>
+                <td>${c.issue}</td>
+                <td>${c.expiry}</td>
+            </tr>
+        `;
+
+        adminHTML += `
+            <tr>
+                <td>${c.user}</td>
+                <td>${c.title}</td>
+                <td>${c.issuer}</td>
+                <td>${c.expiry}</td>
+                <td><button>Renew</button></td>
+            </tr>
+        `;
+    });
+
+    document.getElementById("userBody").innerHTML = userHTML;
+    document.getElementById("adminBody").innerHTML = adminHTML;
+}
+
+function toggleTables() {
+    const role = document.getElementById("role").value;
+
+    if (role === "admin") {
+        document.getElementById("adminTable").style.display = "";
+        document.getElementById("adminLabel").style.display = "";
+    } else {
+        document.getElementById("adminTable").style.display = "none";
+        document.getElementById("adminLabel").style.display = "none";
+    }
+}
+
+</script>
+
+</body>
+</html>
